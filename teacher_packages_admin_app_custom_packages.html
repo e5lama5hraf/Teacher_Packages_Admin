@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إدارة باكدجات المعلمين</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <h1>لوحة إدارة باكدجات المعلمين</h1>
+        <p>إضافة المدرس داخل نوع الباكدج أولًا، ثم إضافة التاسكات يدويًا حسب احتياج كل عميل.</p>
+      </div>
+      <div class="hero-badge">
+        <strong id="totalClients">0</strong>
+        <span>عميل مسجل</span>
+      </div>
+    </section>
+
+    <section class="section-buttons">
+      <button class="section-btn active" type="button" data-target="addClientPanel">➕ إضافة عميل جديد</button>
+      <button class="section-btn" type="button" data-target="facebookPanel">📘 عملاء باكدجات الفيس بوك</button>
+      <button class="section-btn" type="button" data-target="youtubePanel">▶️ عملاء باكدجات اليوتيوب</button>
+      <button class="section-btn" type="button" data-target="schedulePanel">🗓️ جدول تصوير الاستوديو</button>
+    </section>
+
+    <section id="addClientPanel" class="section-panel active">
+      <div class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h2>إضافة عميل جديد</h2>
+            <p>بعد الإضافة، سيتم إنشاء مكان للمدرس فقط داخل باكدجات فيسبوك أو يوتيوب بدون إنشاء مهام تلقائيًا.</p>
+          </div>
+        </div>
+
+        <div class="add-client-layout">
+          <form id="clientForm">
+            <div class="form-row">
+              <label for="teacherName">اسم المدرس</label>
+              <input id="teacherName" type="text" placeholder="مثال: أ/ محمد أحمد" required />
+            </div>
+
+            <div class="form-row">
+              <label for="subjectName">اسم المادة</label>
+              <input id="subjectName" type="text" placeholder="مثال: فيزياء / أحياء / رياضيات" required />
+            </div>
+
+            <div class="two-cols">
+              <div class="form-row">
+                <label for="startDate">تاريخ الاشتراك</label>
+                <input id="startDate" type="date" required />
+              </div>
+
+              <div class="form-row">
+                <label for="duration">مدة الاشتراك</label>
+                <select id="duration" required>
+                  <option value="1">شهر</option>
+                  <option value="3">3 شهور</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="two-cols">
+              <div class="form-row">
+                <label for="packageName">اسم الباكدج</label>
+                <input id="packageName" type="text" placeholder="مثال: باكدج السوشيال / باكدج اليوتيوب 8 ساعات" required />
+              </div>
+
+              <div class="form-row">
+                <label for="packagePlatform">نوع الباكدج</label>
+                <select id="packagePlatform" required>
+                  <option value="facebook">فيس بوك</option>
+                  <option value="youtube">يوتيوب</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="packageDetails">تفاصيل الباكدج</label>
+              <textarea id="packageDetails" placeholder="مثال: 8 تصميمات، 4 ريلز، 4 بوستات منوعة / 8 ساعات تصوير، ثامبنيل، رفع وجدولة..." required></textarea>
+            </div>
+
+            <div class="form-row">
+              <label for="packageTotalTasks">عدد التاسكات داخل الباكدج</label>
+              <input id="packageTotalTasks" type="number" min="1" placeholder="مثال: 16" required />
+            </div>
+
+            <div id="shootingBookingFields" class="shooting-booking-fields">
+              <h3 style="margin:0 0 8px;">حجز تصوير اليوتيوب داخل الاستوديو</h3>
+              <p class="hint">الخانة دي اختيارية، وتظهر لباكدجات اليوتيوب فقط. املأها لو العميل مشترك في خدمة تصوير اليوتيوب.</p>
+
+              <div class="two-cols">
+                <div class="form-row">
+                  <label for="shootingDay">يوم التصوير</label>
+                  <select id="shootingDay">
+                    <option value="">بدون تحديد</option>
+                    <option value="السبت">السبت</option>
+                    <option value="الأحد">الأحد</option>
+                    <option value="الإثنين">الإثنين</option>
+                    <option value="الثلاثاء">الثلاثاء</option>
+                    <option value="الأربعاء">الأربعاء</option>
+                    <option value="الخميس">الخميس</option>
+                    <option value="الجمعة">الجمعة</option>
+                  </select>
+                </div>
+
+                <div class="form-row">
+                  <label for="shootingTime">ميعاد التصوير المحجوز</label>
+                  <input id="shootingTime" type="text" placeholder="مثال: 3:00 م - 5:00 م" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label for="shootingNotes">ملاحظات التصوير</label>
+                <textarea id="shootingNotes" placeholder="مثال: تصوير 4 حلقات / تجهيز إضاءة خاصة / حضور قبل الميعاد بنصف ساعة"></textarea>
+              </div>
+            </div>
+
+
+            <div class="btns">
+              <button class="primary" type="submit">إضافة المدرس للباكدجات</button>
+              <button class="secondary" type="button" id="exportCsv">تصدير التاسكات CSV</button>
+              <button class="danger" type="button" id="clearAll">مسح كل البيانات</button>
+            </div>
+          </form>
+
+          <div>
+            <h2 style="margin:0 0 14px;">العملاء المسجلين</h2>
+            <div class="client-list" id="clientList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="facebookPanel" class="section-panel">
+      <div class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h2>عملاء باكدجات الفيس بوك</h2>
+            <p>كل مدرس له مكان مستقل، وتتم إضافة التاسكات يدويًا.</p>
+          </div>
+        </div>
+
+        <div class="stats" id="facebookStats"></div>
+        <div class="filters">
+          <input id="facebookSearch" type="search" placeholder="بحث باسم المدرس أو المادة أو التاسك" />
+          <select id="facebookClientFilter"><option value="all">كل العملاء</option></select>
+          <select id="facebookStatusFilter">
+            <option value="all">كل الحالات</option>
+            <option value="pending">المتبقي</option>
+            <option value="done">المنتهي</option>
+          </select>
+          <select id="facebookTypeFilter">
+            <option value="all">كل أنواع التاسكات</option>
+            <option value="design">تصميم</option>
+            <option value="video">فيديو</option>
+            <option value="mixed-post">بوست منوع</option>
+            <option value="reel">ريل</option>
+          </select>
+        </div>
+
+        <div id="facebookBoard" class="packages-board"></div>
+      </div>
+    </section>
+
+    <section id="youtubePanel" class="section-panel">
+      <div class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h2>عملاء باكدجات اليوتيوب</h2>
+            <p>كل مدرس له مكان مستقل، وتتم إضافة التاسكات يدويًا.</p>
+          </div>
+        </div>
+
+        <div class="stats" id="youtubeStats"></div>
+        <div class="filters">
+          <input id="youtubeSearch" type="search" placeholder="بحث باسم المدرس أو المادة أو التاسك" />
+          <select id="youtubeClientFilter"><option value="all">كل العملاء</option></select>
+          <select id="youtubeStatusFilter">
+            <option value="all">كل الحالات</option>
+            <option value="pending">المتبقي</option>
+            <option value="done">المنتهي</option>
+          </select>
+          <select id="youtubeTypeFilter">
+            <option value="all">كل أنواع التاسكات</option>
+            <option value="design">تصميم</option>
+            <option value="video">فيديو</option>
+            <option value="mixed-post">بوست منوع</option>
+            <option value="reel">ريل</option>
+          </select>
+        </div>
+
+        <div id="youtubeBoard" class="packages-board"></div>
+      </div>
+    </section>
+
+    <section id="schedulePanel" class="section-panel">
+      <div class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h2>جدول تصوير الاستوديو</h2>
+            <p>7 أزرار لأيام الأسبوع، وداخل كل يوم تظهر مواعيد تصوير اليوتيوب المحجوزة للعملاء.</p>
+          </div>
+        </div>
+
+        <div class="stats" id="shootingStats"></div>
+        <div id="shootingScheduleDays" class="schedule-days"></div>
+        <div id="shootingScheduleList" class="booking-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
