@@ -751,12 +751,11 @@
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabaseUrl = "https://plhskxesiaaflahnqyix.supabase.co";
-    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHNreGVzaWFhZmxhaG5xeWl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMzEzOTcsImV4cCI6MjA5NDYwNzM5N30.bQDo5rkW9Vll5b4RqyedlHwgWXAfacPPpiZBio30IIw";
 
     document.addEventListener("DOMContentLoaded", () => {
-      const supabaseUrl = "PUT_YOUR_SUPABASE_PROJECT_URL_HERE";
-      const supabaseAnonKey = "PUT_YOUR_SUPABASE_ANON_KEY_HERE";
+      const supabaseUrl = "https://plhskxesiaaflahnqyix.supabase.co";
+      const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHNreGVzaWFhZmxhaG5xeWl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMzEzOTcsImV4cCI6MjA5NDYwNzM5N30.bQDo5rkW9Vll5b4RqyedlHwgWXAfacPPpiZBio30IIw";
+
       const hasSupabaseConfig = supabaseUrl && supabaseAnonKey && !supabaseUrl.includes("PUT_YOUR") && !supabaseAnonKey.includes("PUT_YOUR") && window.supabase;
       const supabaseClient = hasSupabaseConfig ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
       let useSupabase = Boolean(supabaseClient);
