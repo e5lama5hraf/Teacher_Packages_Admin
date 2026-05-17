@@ -711,34 +711,31 @@
     </section>
   </main>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ==============================
-    // Firebase Database Settings
+    // Supabase Database Settings
     // ==============================
-    // 1) اعمل Project من Firebase
-    // 2) فعّل Cloud Firestore
-    // 3) انسخ firebaseConfig وحطه هنا بدل القيم التجريبية
+    // 1) اعمل Project من Supabase
+    // 2) افتح SQL Editor وشغّل كود إنشاء الجداول الموجود في آخر ردي
+    // 3) من Project Settings > API انسخ Project URL و anon public key
+    // 4) حطهم هنا بدل القيم التجريبية
     // ملاحظة: لو البيانات دي فضلت زي ما هي، الموقع هيشتغل LocalStorage عادي كنسخة احتياطية.
-    const firebaseConfig = {
-      apiKey: "PUT_YOUR_API_KEY_HERE",
-      authDomain: "PUT_YOUR_PROJECT.firebaseapp.com",
-      projectId: "PUT_YOUR_PROJECT_ID_HERE",
-      storageBucket: "PUT_YOUR_PROJECT.appspot.com",
-      messagingSenderId: "PUT_YOUR_SENDER_ID_HERE",
-      appId: "PUT_YOUR_APP_ID_HERE"
-    };
+    const supabaseUrl = "https://plhskxesiaaflahnqyix.supabase.co/rest/v1/";
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsaHNreGVzaWFhZmxhaG5xeWl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMzEzOTcsImV4cCI6MjA5NDYwNzM5N30.bQDo5rkW9Vll5b4RqyedlHwgWXAfacPPpiZBio30IIw";
 
-    const hasFirebaseConfig = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("PUT_YOUR") && firebaseConfig.projectId && !firebaseConfig.projectId.includes("PUT_YOUR");
-    let db = null;
-    let useFirebase = false;
+    const hasSupabaseConfig =
+      supabaseUrl &&
+      supabaseAnonKey &&
+      !supabaseUrl.includes("PUT_YOUR") &&
+      !supabaseAnonKey.includes("PUT_YOUR") &&
+      window.supabase;
 
-    if (hasFirebaseConfig && window.firebase) {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      useFirebase = true;
-    }
+    const supabaseClient = hasSupabaseConfig
+      ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
+      : null;
+
+    let useSupabase = Boolean(supabaseClient);
 
     const packages = {
       youtube8: {
@@ -793,12 +790,83 @@
     let tasks = [];
     let isDataLoaded = false;
 
+    function mapClientFromDb(row) {
+      return {
+        id: row.id,
+        teacherName: row.teacher_name || "",
+        subjectName: row.subject_name || "",
+        startDate: row.start_date || "",
+        duration: String(row.duration || 1),
+        packageName: row.package_name || "",
+        packagePlatform: row.package_platform || "facebook",
+        packageDetails: row.package_details || "",
+        packageTotalTasks: Number(row.package_total_tasks || 0),
+        packageKey: row.package_platform === "youtube" ? "customYoutube" : "customFacebook",
+        shootingBooking: row.shooting_booking || null,
+        createdAt: row.created_at || new Date().toISOString()
+      };
+    }
+
+    function mapTaskFromDb(row) {
+      return {
+        id: row.id,
+        clientId: row.client_id,
+        type: row.type,
+        details: row.details || "",
+        executeDate: row.execute_date || "",
+        uploadDate: row.upload_date || "",
+        done: Boolean(row.done),
+        createdAt: row.created_at || new Date().toISOString()
+      };
+    }
+
+    function mapClientToDb(client) {
+      return {
+        id: client.id,
+        teacher_name: client.teacherName,
+        subject_name: client.subjectName,
+        start_date: client.startDate,
+        duration: Number(client.duration || 1),
+        package_name: client.packageName,
+        package_platform: client.packagePlatform,
+        package_details: client.packageDetails,
+        package_total_tasks: Number(client.packageTotalTasks || 0),
+        shooting_booking: client.shootingBooking || null,
+        created_at: client.createdAt
+      };
+    }
+
+    function mapTaskToDb(task) {
+      return {
+        id: task.id,
+        client_id: task.clientId,
+        type: task.type,
+        details: task.details,
+        execute_date: task.executeDate,
+        upload_date: task.uploadDate,
+        done: Boolean(task.done),
+        created_at: task.createdAt
+      };
+    }
+
     async function loadData() {
-      if (useFirebase) {
-        const clientsSnapshot = await db.collection("clients").orderBy("createdAt", "desc").get();
-        const tasksSnapshot = await db.collection("tasks").orderBy("createdAt", "desc").get();
-        clients = clientsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        tasks = tasksSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      if (useSupabase) {
+        const { data: clientsData, error: clientsError } = await supabaseClient
+          .from("clients")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (clientsError) throw clientsError;
+
+        const { data: tasksData, error: tasksError } = await supabaseClient
+          .from("tasks")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (tasksError) throw tasksError;
+
+        clients = (clientsData || []).map(mapClientFromDb);
+        tasks = (tasksData || []).map(mapTaskFromDb);
       } else {
         clients = JSON.parse(localStorage.getItem("teacherPackageClientsV2")) || [];
         tasks = JSON.parse(localStorage.getItem("teacherPackageTasksV2")) || [];
@@ -807,59 +875,33 @@
       isDataLoaded = true;
     }
 
-    const packageName = document.getElementById("packageName");
-    const packagePlatform = document.getElementById("packagePlatform");
-    const packageDetails = document.getElementById("packageDetails");
-    const packageTotalTasks = document.getElementById("packageTotalTasks");
-    const startDate = document.getElementById("startDate");
-    const clientForm = document.getElementById("clientForm");
-    const clientList = document.getElementById("clientList");
-    const shootingBookingFields = document.getElementById("shootingBookingFields");
-    const shootingDay = document.getElementById("shootingDay");
-    const shootingTime = document.getElementById("shootingTime");
-    const shootingNotes = document.getElementById("shootingNotes");
+    async function clearSupabaseTable(tableName) {
+      const { error } = await supabaseClient
+        .from(tableName)
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
 
-    startDate.valueAsDate = new Date();
-
-    packagePlatform.addEventListener("change", toggleShootingBookingFields);
-    toggleShootingBookingFields();
-
-    document.querySelectorAll(".section-btn").forEach((button) => {
-      button.addEventListener("click", () => showPanel(button.dataset.target));
-    });
-
-    function showPanel(targetId) {
-      document.querySelectorAll(".section-btn").forEach((btn) => btn.classList.remove("active"));
-      document.querySelectorAll(".section-panel").forEach((panel) => panel.classList.remove("active"));
-      const button = document.querySelector(`[data-target="${targetId}"]`);
-      if (button) button.classList.add("active");
-      document.getElementById(targetId).classList.add("active");
-    }
-
-    async function clearCollection(collectionName) {
-      const snapshot = await db.collection(collectionName).get();
-      const batch = db.batch();
-      snapshot.docs.forEach((doc) => batch.delete(doc.ref));
-      await batch.commit();
+      if (error) throw error;
     }
 
     async function saveData() {
-      if (useFirebase) {
-        await Promise.all([
-          clearCollection("clients"),
-          clearCollection("tasks")
-        ]);
+      if (useSupabase) {
+        await clearSupabaseTable("tasks");
+        await clearSupabaseTable("clients");
 
-        const batch = db.batch();
-        clients.forEach((client) => {
-          const { id, ...clientData } = client;
-          batch.set(db.collection("clients").doc(id), clientData);
-        });
-        tasks.forEach((task) => {
-          const { id, ...taskData } = task;
-          batch.set(db.collection("tasks").doc(id), taskData);
-        });
-        await batch.commit();
+        if (clients.length) {
+          const { error } = await supabaseClient
+            .from("clients")
+            .insert(clients.map(mapClientToDb));
+          if (error) throw error;
+        }
+
+        if (tasks.length) {
+          const { error } = await supabaseClient
+            .from("tasks")
+            .insert(tasks.map(mapTaskToDb));
+          if (error) throw error;
+        }
       } else {
         localStorage.setItem("teacherPackageClientsV2", JSON.stringify(clients));
         localStorage.setItem("teacherPackageTasksV2", JSON.stringify(tasks));
@@ -1379,8 +1421,8 @@
         await loadData();
       } catch (error) {
         console.error(error);
-        alert("حصل خطأ أثناء تحميل الداتا من Firebase. الموقع هيحاول يفتح النسخة المحلية.");
-        useFirebase = false;
+        alert("حصل خطأ أثناء تحميل الداتا من Supabase. الموقع هيحاول يفتح النسخة المحلية.");
+        useSupabase = false;
         clients = JSON.parse(localStorage.getItem("teacherPackageClientsV2")) || [];
         tasks = JSON.parse(localStorage.getItem("teacherPackageTasksV2")) || [];
       }
