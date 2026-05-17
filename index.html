@@ -4,7 +4,506 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>إدارة باكدجات المعلمين</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    :root {
+      --bg: #f3fbf8;
+      --card: #ffffff;
+      --text: #12313a;
+      --muted: #64748b;
+      --primary: #0f75bd;
+      --primary-dark: #075985;
+      --green: #10b981;
+      --green-dark: #047857;
+      --border: #d9eee8;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 18px 45px rgba(6, 95, 70, 0.10);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Cairo", "Tahoma", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.16), transparent 28%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      width: min(1220px, calc(100% - 32px));
+      margin: 28px auto;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #063b5c, #0f75bd 52%, #10b981);
+      color: #fff;
+      padding: 34px;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      gap: 22px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.25;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 16px;
+    }
+
+    .hero-badge {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      padding: 15px 18px;
+      border-radius: 18px;
+      min-width: 210px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-badge strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+
+    .section-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section-btn {
+      background: #fff;
+      color: var(--primary-dark);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.18s;
+    }
+
+    .section-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .section-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--green));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    .panel-card, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel-head h2, .card h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .add-client-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: 0.2s;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+    }
+
+    .form-row { margin-bottom: 15px; }
+
+    .two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.18s;
+      font-size: 14px;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .primary { background: var(--primary); color: #fff; }
+    .success { background: var(--green); color: #fff; }
+    .secondary { background: #e0f2fe; color: var(--primary-dark); }
+    .danger { background: #fee2e2; color: #b91c1c; }
+    .ghost { background: #ecfdf5; color: var(--green-dark); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .stat strong { font-size: 24px; }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .client-list, .packages-board {
+      display: grid;
+      gap: 14px;
+    }
+
+    .client-card, .teacher-package {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15, 118, 110, 0.06);
+    }
+
+    .client-card {
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .client-card:hover {
+      border-color: var(--primary);
+      background: #f0f9ff;
+    }
+
+    .client-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 17px;
+    }
+
+    .client-card span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .package-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+      background: linear-gradient(135deg, #f8fafc, #ecfdf5);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .package-head h3 {
+      margin: 0 0 6px;
+      font-size: 21px;
+    }
+
+    .package-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: var(--primary-dark);
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .chip.green { background: #d1fae5; color: var(--green-dark); }
+    .chip.warning { background: #fef3c7; color: #92400e; }
+    .chip.danger { background: #fee2e2; color: #b91c1c; }
+
+    .package-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .package-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .task-form {
+      display: none;
+      padding: 15px;
+      background: #f8fafc;
+      border: 1px dashed #94dcca;
+      border-radius: 18px;
+    }
+
+    .task-form.active { display: block; }
+
+    .tasks-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 840px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 900;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    tr.done-row { background: #f0fdf4; opacity: 0.78; }
+
+    .task-details {
+      line-height: 1.7;
+      max-width: 360px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-weight: 900;
+      font-size: 12px;
+      background: #e0f2fe;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+
+    .status-pill.done {
+      background: #d1fae5;
+      color: var(--green-dark);
+    }
+
+    input[type="checkbox"] {
+      width: 19px;
+      height: 19px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px;
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+    }
+
+
+    .shooting-booking-fields {
+      display: none;
+      margin: 14px 0 4px;
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px dashed #7dd3fc;
+      background: #f0f9ff;
+    }
+
+    .shooting-booking-fields.active { display: block; }
+
+    .hint {
+      margin: -4px 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .schedule-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin: 16px 0 18px;
+    }
+
+    .day-btn {
+      background: #fff;
+      color: var(--primary-dark);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 10px;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.06);
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+      min-height: 82px;
+    }
+
+    .day-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--green));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .day-btn small {
+      font-size: 12px;
+      font-weight: 800;
+      opacity: 0.85;
+    }
+
+    .booking-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .booking-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 15px;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.06);
+    }
+
+    .booking-card strong {
+      display: block;
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+
+    .booking-card p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 980px) {
+      .hero, .panel-head { flex-direction: column; align-items: stretch; }
+      .section-buttons, .add-client-layout, .filters, .stats, .schedule-days { grid-template-columns: 1fr; }
+      .package-head { grid-template-columns: 1fr; }
+      .package-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 560px) {
+      .app { width: min(100% - 18px, 1220px); }
+      .hero, .panel-card, .card { padding: 18px; }
+      .two-cols { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
   <main class="app">
@@ -212,6 +711,683 @@
     </section>
   </main>
 
-  <script src="assets/main.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script>
+    // ==============================
+    // Firebase Database Settings
+    // ==============================
+    // 1) اعمل Project من Firebase
+    // 2) فعّل Cloud Firestore
+    // 3) انسخ firebaseConfig وحطه هنا بدل القيم التجريبية
+    // ملاحظة: لو البيانات دي فضلت زي ما هي، الموقع هيشتغل LocalStorage عادي كنسخة احتياطية.
+    const firebaseConfig = {
+      apiKey: "PUT_YOUR_API_KEY_HERE",
+      authDomain: "PUT_YOUR_PROJECT.firebaseapp.com",
+      projectId: "PUT_YOUR_PROJECT_ID_HERE",
+      storageBucket: "PUT_YOUR_PROJECT.appspot.com",
+      messagingSenderId: "PUT_YOUR_SENDER_ID_HERE",
+      appId: "PUT_YOUR_APP_ID_HERE"
+    };
+
+    const hasFirebaseConfig = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("PUT_YOUR") && firebaseConfig.projectId && !firebaseConfig.projectId.includes("PUT_YOUR");
+    let db = null;
+    let useFirebase = false;
+
+    if (hasFirebaseConfig && window.firebase) {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      useFirebase = true;
+    }
+
+    const packages = {
+      youtube8: {
+        name: "Youtube - باكدج 8 ساعات استوديو",
+        platform: "youtube",
+        totalTasks: 22,
+        summary: "8 ساعات تصوير، 5 ثامبنيل، 4 ريلز، رفع وجدولة، SEO، مشاركة في الجروبات"
+      },
+      youtube16: {
+        name: "Youtube - باكدج 16 ساعة استوديو",
+        platform: "youtube",
+        totalTasks: 42,
+        summary: "16 ساعة تصوير، 10 ثامبنيل، 8 ريلز، رفع وجدولة، SEO، مشاركة في الجروبات"
+      },
+      youtube30: {
+        name: "Youtube - باكدج 30 ساعة استوديو",
+        platform: "youtube",
+        totalTasks: 71,
+        summary: "30 ساعة تصوير، 15 ثامبنيل، 15 ريلز، رفع وجدولة، SEO، مشاركة في الجروبات"
+      },
+      facebook10: {
+        name: "Facebook - إجمالي 10 بوست",
+        platform: "facebook",
+        totalTasks: 10,
+        summary: "4 تصميمات، 2 ريلز، 4 بوست متنوع"
+      },
+      facebook16: {
+        name: "Facebook - إجمالي 16 بوست",
+        platform: "facebook",
+        totalTasks: 16,
+        summary: "8 تصميمات، 4 ريلز، 4 بوست متنوع"
+      },
+      facebook24: {
+        name: "Facebook - إجمالي 24 بوست",
+        platform: "facebook",
+        totalTasks: 24,
+        summary: "8 تصميمات، 8 ريلز، 8 بوست متنوع"
+      }
+    };
+
+    const taskTypes = {
+      design: "تصميم",
+      video: "فيديو",
+      "mixed-post": "بوست منوع",
+      reel: "ريل"
+    };
+
+    const weekDays = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
+    let selectedShootingDay = weekDays[0];
+
+    let clients = [];
+    let tasks = [];
+    let isDataLoaded = false;
+
+    async function loadData() {
+      if (useFirebase) {
+        const clientsSnapshot = await db.collection("clients").orderBy("createdAt", "desc").get();
+        const tasksSnapshot = await db.collection("tasks").orderBy("createdAt", "desc").get();
+        clients = clientsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        tasks = tasksSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      } else {
+        clients = JSON.parse(localStorage.getItem("teacherPackageClientsV2")) || [];
+        tasks = JSON.parse(localStorage.getItem("teacherPackageTasksV2")) || [];
+      }
+
+      isDataLoaded = true;
+    }
+
+    const packageName = document.getElementById("packageName");
+    const packagePlatform = document.getElementById("packagePlatform");
+    const packageDetails = document.getElementById("packageDetails");
+    const packageTotalTasks = document.getElementById("packageTotalTasks");
+    const startDate = document.getElementById("startDate");
+    const clientForm = document.getElementById("clientForm");
+    const clientList = document.getElementById("clientList");
+    const shootingBookingFields = document.getElementById("shootingBookingFields");
+    const shootingDay = document.getElementById("shootingDay");
+    const shootingTime = document.getElementById("shootingTime");
+    const shootingNotes = document.getElementById("shootingNotes");
+
+    startDate.valueAsDate = new Date();
+
+    packagePlatform.addEventListener("change", toggleShootingBookingFields);
+    toggleShootingBookingFields();
+
+    document.querySelectorAll(".section-btn").forEach((button) => {
+      button.addEventListener("click", () => showPanel(button.dataset.target));
+    });
+
+    function showPanel(targetId) {
+      document.querySelectorAll(".section-btn").forEach((btn) => btn.classList.remove("active"));
+      document.querySelectorAll(".section-panel").forEach((panel) => panel.classList.remove("active"));
+      const button = document.querySelector(`[data-target="${targetId}"]`);
+      if (button) button.classList.add("active");
+      document.getElementById(targetId).classList.add("active");
+    }
+
+    async function clearCollection(collectionName) {
+      const snapshot = await db.collection(collectionName).get();
+      const batch = db.batch();
+      snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+    }
+
+    async function saveData() {
+      if (useFirebase) {
+        await Promise.all([
+          clearCollection("clients"),
+          clearCollection("tasks")
+        ]);
+
+        const batch = db.batch();
+        clients.forEach((client) => {
+          const { id, ...clientData } = client;
+          batch.set(db.collection("clients").doc(id), clientData);
+        });
+        tasks.forEach((task) => {
+          const { id, ...taskData } = task;
+          batch.set(db.collection("tasks").doc(id), taskData);
+        });
+        await batch.commit();
+      } else {
+        localStorage.setItem("teacherPackageClientsV2", JSON.stringify(clients));
+        localStorage.setItem("teacherPackageTasksV2", JSON.stringify(tasks));
+      }
+    }
+
+    function getPackageInfo(client) {
+      const oldPackage = packages[client.packageKey] || {};
+      return {
+        name: client.packageName || oldPackage.name || "باكدج بدون اسم",
+        platform: client.packagePlatform || oldPackage.platform || "facebook",
+        totalTasks: Number(client.packageTotalTasks ?? oldPackage.totalTasks ?? 0),
+        summary: client.packageDetails || oldPackage.summary || ""
+      };
+    }
+
+    function isYoutubeClient(client) {
+      return getPackageInfo(client).platform === "youtube";
+    }
+
+    function toggleShootingBookingFields() {
+      const isYoutube = packagePlatform.value === "youtube";
+      shootingBookingFields.classList.toggle("active", isYoutube);
+      if (!isYoutube) {
+        shootingDay.value = "";
+        shootingTime.value = "";
+        shootingNotes.value = "";
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function addMonths(dateString, months) {
+      const date = new Date(dateString + "T12:00:00");
+      date.setMonth(date.getMonth() + months);
+      date.setDate(date.getDate() - 1);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return "-";
+      return new Date(dateString + "T12:00:00").toLocaleDateString("ar-EG", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+    function getClientTasks(clientId) {
+      return tasks.filter((task) => task.clientId === clientId);
+    }
+
+    function getPackageTotal(client) {
+      return getPackageInfo(client).totalTasks * Number(client.duration || 1);
+    }
+
+    function getRemainingTasks(client) {
+      const added = getClientTasks(client.id).length;
+      return Math.max(getPackageTotal(client) - added, 0);
+    }
+
+    clientForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const selectedPlatform = packagePlatform.value;
+      const isYoutube = selectedPlatform === "youtube";
+      const selectedDay = shootingDay.value;
+      const selectedTime = shootingTime.value.trim();
+      const selectedNotes = shootingNotes.value.trim();
+      const tasksCount = Number(packageTotalTasks.value);
+
+      if (isYoutube && (selectedDay || selectedTime || selectedNotes) && (!selectedDay || !selectedTime)) {
+        alert("لو هتضيف حجز تصوير، من فضلك اختار اليوم واكتب ميعاد التصوير.");
+        return;
+      }
+
+      if (!tasksCount || tasksCount < 1) {
+        alert("من فضلك اكتب عدد التاسكات داخل الباكدج بشكل صحيح.");
+        return;
+      }
+
+      const client = {
+        id: crypto.randomUUID(),
+        teacherName: document.getElementById("teacherName").value.trim(),
+        subjectName: document.getElementById("subjectName").value.trim(),
+        startDate: startDate.value,
+        duration: document.getElementById("duration").value,
+        packageName: packageName.value.trim(),
+        packagePlatform: selectedPlatform,
+        packageDetails: packageDetails.value.trim(),
+        packageTotalTasks: tasksCount,
+        packageKey: selectedPlatform === "youtube" ? "customYoutube" : "customFacebook",
+        shootingBooking: isYoutube && selectedDay && selectedTime ? {
+          day: selectedDay,
+          time: selectedTime,
+          notes: selectedNotes
+        } : null,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!client.teacherName || !client.subjectName || !client.startDate || !client.packageName || !client.packageDetails) return;
+
+      clients.push(client);
+      await saveData();
+      clientForm.reset();
+      startDate.valueAsDate = new Date();
+      toggleShootingBookingFields();
+      render();
+
+      const platform = getPackageInfo(client).platform;
+      showPanel(platform === "facebook" ? "facebookPanel" : "youtubePanel");
+    });
+
+    function toggleTaskForm(clientId) {
+      const form = document.getElementById(`taskForm-${clientId}`);
+      if (form) form.classList.toggle("active");
+    }
+
+    async function addManualTask(event, clientId) {
+      event.preventDefault();
+      const form = event.target;
+      const client = clients.find((item) => item.id === clientId);
+      const clientTasks = getClientTasks(clientId);
+
+      if (clientTasks.length >= getPackageTotal(client)) {
+        alert("تم الوصول إلى إجمالي عدد التاسكات داخل الباقة لهذا العميل.");
+        return;
+      }
+
+      const task = {
+        id: crypto.randomUUID(),
+        clientId,
+        type: form.taskType.value,
+        details: form.taskDetails.value.trim(),
+        executeDate: form.executeDate.value,
+        uploadDate: form.uploadDate.value,
+        done: false,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!task.details || !task.executeDate || !task.uploadDate) return;
+
+      tasks.push(task);
+      await saveData();
+      form.reset();
+      render();
+      document.getElementById(`taskForm-${clientId}`)?.classList.add("active");
+    }
+
+    async function toggleTask(taskId) {
+      tasks = tasks.map((task) => task.id === taskId ? { ...task, done: !task.done } : task);
+      await saveData();
+      render();
+    }
+
+    async function deleteTask(taskId) {
+      if (!confirm("هل تريد حذف هذا التاسك؟")) return;
+      tasks = tasks.filter((task) => task.id !== taskId);
+      await saveData();
+      render();
+    }
+
+    async function deleteClient(clientId) {
+      if (!confirm("سيتم حذف العميل وكل التاسكات الخاصة به. هل أنت متأكد؟")) return;
+      clients = clients.filter((client) => client.id !== clientId);
+      tasks = tasks.filter((task) => task.clientId !== clientId);
+      await saveData();
+      render();
+    }
+
+
+    function getShootingBookings() {
+      return clients
+        .filter((client) => isYoutubeClient(client) && client.shootingBooking?.day && client.shootingBooking?.time)
+        .map((client) => ({
+          client,
+          day: client.shootingBooking.day,
+          time: client.shootingBooking.time,
+          notes: client.shootingBooking.notes || ""
+        }));
+    }
+
+    function selectShootingDay(day) {
+      selectedShootingDay = day;
+      renderShootingSchedule();
+    }
+
+    function renderShootingSchedule() {
+      const bookings = getShootingBookings();
+      const selectedBookings = bookings.filter((booking) => booking.day === selectedShootingDay);
+
+      document.getElementById("shootingStats").innerHTML = `
+        <div class="stat"><span>إجمالي حجوزات التصوير</span><strong>${bookings.length}</strong></div>
+        <div class="stat"><span>أيام بها حجوزات</span><strong>${weekDays.filter((day) => bookings.some((booking) => booking.day === day)).length}</strong></div>
+        <div class="stat"><span>حجوزات اليوم المحدد</span><strong>${selectedBookings.length}</strong></div>
+        <div class="stat"><span>اليوم المحدد</span><strong>${selectedShootingDay}</strong></div>
+      `;
+
+      document.getElementById("shootingScheduleDays").innerHTML = weekDays.map((day) => {
+        const dayBookings = bookings.filter((booking) => booking.day === day);
+        const times = dayBookings.length
+          ? dayBookings.slice(0, 2).map((booking) => escapeHTML(booking.time)).join("<br>") + (dayBookings.length > 2 ? `<br>+${dayBookings.length - 2} مواعيد أخرى` : "")
+          : "لا توجد حجوزات";
+        return `
+          <button class="day-btn ${selectedShootingDay === day ? "active" : ""}" type="button" onclick="selectShootingDay('${day}')">
+            <strong>${day}</strong>
+            <small>${times}</small>
+          </button>
+        `;
+      }).join("");
+
+      document.getElementById("shootingScheduleList").innerHTML = selectedBookings.length ? selectedBookings.map(({ client, time, notes }) => `
+        <div class="booking-card">
+          <strong>${escapeHTML(client.teacherName)}</strong>
+          <span class="chip green">${escapeHTML(time)}</span>
+          <p>${escapeHTML(client.subjectName)} • ${escapeHTML(getPackageInfo(client).name)}</p>
+          ${notes ? `<p><strong style="font-size:14px;display:inline;">ملاحظات:</strong> ${escapeHTML(notes)}</p>` : ""}
+        </div>
+      `).join("") : `<div class="empty">لا توجد مواعيد تصوير محجوزة في يوم ${selectedShootingDay}</div>`;
+    }
+
+    function renderClientList() {
+      document.getElementById("totalClients").textContent = clients.length;
+
+      if (!clients.length) {
+        clientList.innerHTML = `<div class="empty">لا يوجد عملاء حتى الآن</div>`;
+        return;
+      }
+
+      clientList.innerHTML = clients.map((client) => {
+        const pack = getPackageInfo(client);
+        const added = getClientTasks(client.id).length;
+        const total = getPackageTotal(client);
+        const remaining = getRemainingTasks(client);
+        return `
+          <div class="client-card" onclick="openClientPackage('${client.id}')">
+            <strong>${client.teacherName}</strong>
+            <span>${client.subjectName} • ${pack.name}</span><br />
+            <span>الاشتراك: ${formatDate(client.startDate)} • الانتهاء: ${formatDate(addMonths(client.startDate, Number(client.duration)))}</span><br />
+            <span>التاسكات المضافة: ${added}/${total} • المتبقي للإضافة: ${remaining}</span><br />
+            ${client.shootingBooking?.day && client.shootingBooking?.time ? `<span>حجز التصوير: ${client.shootingBooking.day} • ${client.shootingBooking.time}</span>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openClientPackage(clientId) {
+      const client = clients.find((item) => item.id === clientId);
+      const platform = getPackageInfo(client).platform;
+      showPanel(platform === "facebook" ? "facebookPanel" : "youtubePanel");
+      const filter = document.getElementById(`${platform}ClientFilter`);
+      filter.value = clientId;
+      renderBoards();
+    }
+
+    function renderPlatformFilters(platform) {
+      const clientFilter = document.getElementById(`${platform}ClientFilter`);
+      const current = clientFilter.value;
+      clientFilter.innerHTML = `<option value="all">كل العملاء</option>`;
+      clients
+        .filter((client) => getPackageInfo(client).platform === platform)
+        .forEach((client) => {
+          const option = document.createElement("option");
+          option.value = client.id;
+          option.textContent = `${client.teacherName} - ${client.subjectName}`;
+          clientFilter.appendChild(option);
+        });
+      clientFilter.value = [...clientFilter.options].some((option) => option.value === current) ? current : "all";
+    }
+
+    function getFilteredClients(platform) {
+      const search = document.getElementById(`${platform}Search`).value.trim().toLowerCase();
+      const clientFilter = document.getElementById(`${platform}ClientFilter`).value;
+      const statusFilter = document.getElementById(`${platform}StatusFilter`).value;
+      const typeFilter = document.getElementById(`${platform}TypeFilter`).value;
+
+      return clients
+        .filter((client) => getPackageInfo(client).platform === platform)
+        .filter((client) => clientFilter === "all" || client.id === clientFilter)
+        .filter((client) => {
+          const clientTasks = getClientTasks(client.id);
+          const searchableTasks = clientTasks.map((task) => `${task.details} ${taskTypes[task.type]}`).join(" ");
+          const packageInfo = getPackageInfo(client);
+          const searchable = `${client.teacherName} ${client.subjectName} ${packageInfo.name} ${packageInfo.summary} ${searchableTasks}`.toLowerCase();
+          return !search || searchable.includes(search);
+        })
+        .map((client) => {
+          const clientTasks = getClientTasks(client.id)
+            .filter((task) => statusFilter === "all" || (statusFilter === "done" ? task.done : !task.done))
+            .filter((task) => typeFilter === "all" || task.type === typeFilter);
+          return { ...client, visibleTasks: clientTasks };
+        });
+    }
+
+    function renderStats(platform, filteredClients) {
+      const platformTasks = filteredClients.flatMap((client) => client.visibleTasks || []);
+      const added = platformTasks.length;
+      const done = platformTasks.filter((task) => task.done).length;
+      const pending = added - done;
+      const totalPackageTasks = filteredClients.reduce((sum, client) => sum + getPackageTotal(client), 0);
+      const remainingToAdd = Math.max(totalPackageTasks - filteredClients.reduce((sum, client) => sum + getClientTasks(client.id).length, 0), 0);
+
+      document.getElementById(`${platform}Stats`).innerHTML = `
+        <div class="stat"><span>إجمالي التاسكات داخل الباقات</span><strong>${totalPackageTasks}</strong></div>
+        <div class="stat"><span>التاسكات المضافة</span><strong>${added}</strong></div>
+        <div class="stat"><span>المتبقي للإضافة</span><strong>${remainingToAdd}</strong></div>
+        <div class="stat"><span>المتبقي للتنفيذ</span><strong>${pending}</strong></div>
+      `;
+    }
+
+    function renderBoards() {
+      ["facebook", "youtube"].forEach((platform) => {
+        renderPlatformFilters(platform);
+        const filteredClients = getFilteredClients(platform);
+        renderStats(platform, filteredClients);
+
+        const board = document.getElementById(`${platform}Board`);
+
+        if (!filteredClients.length) {
+          board.innerHTML = `<div class="empty">لا يوجد عملاء في هذا القسم حتى الآن</div>`;
+          return;
+        }
+
+        board.innerHTML = filteredClients.map((client) => renderClientPackage(client)).join("");
+      });
+    }
+
+    function renderClientPackage(client) {
+      const pack = getPackageInfo(client);
+      const allClientTasks = getClientTasks(client.id);
+      const total = getPackageTotal(client);
+      const added = allClientTasks.length;
+      const remaining = getRemainingTasks(client);
+      const done = allClientTasks.filter((task) => task.done).length;
+      const endDate = addMonths(client.startDate, Number(client.duration));
+
+      const tasksHtml = client.visibleTasks.length ? `
+        <div class="tasks-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>تم؟</th>
+                <th>نوع التاسك</th>
+                <th>تفاصيل التاسك</th>
+                <th>تاريخ التنفيذ</th>
+                <th>تاريخ الرفع</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${client.visibleTasks.map((task) => `
+                <tr class="${task.done ? "done-row" : ""}">
+                  <td><input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask('${task.id}')" /></td>
+                  <td><span class="chip">${taskTypes[task.type]}</span></td>
+                  <td class="task-details">${task.details}</td>
+                  <td>${formatDate(task.executeDate)}</td>
+                  <td>${formatDate(task.uploadDate)}</td>
+                  <td><span class="status-pill ${task.done ? "done" : ""}">${task.done ? "تم" : "متبقي"}</span></td>
+                  <td><button class="danger" type="button" onclick="deleteTask('${task.id}')">حذف</button></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      ` : `<div class="empty">لم تتم إضافة أي تاسكات مطابقة للفلاتر الحالية</div>`;
+
+      return `
+        <article class="teacher-package">
+          <div class="package-head">
+            <div>
+              <h3>${client.teacherName}</h3>
+              <div class="package-meta">
+                <span>${client.subjectName}</span>
+                <span>•</span>
+                <span>${pack.name}</span>
+                <span>•</span>
+                <span>${pack.summary}</span>
+              </div>
+            </div>
+            <div class="package-actions">
+              <button class="success" type="button" onclick="toggleTaskForm('${client.id}')">+ إضافة تاسك</button>
+              <button class="danger" type="button" onclick="deleteClient('${client.id}')">حذف العميل</button>
+            </div>
+          </div>
+
+          <div class="package-body">
+            <div class="stats" style="margin-bottom:0;">
+              <div class="stat"><span>تاريخ الاشتراك</span><strong>${formatDate(client.startDate)}</strong></div>
+              <div class="stat"><span>تاريخ الانتهاء</span><strong>${formatDate(endDate)}</strong></div>
+              <div class="stat"><span>إجمالي التاسكات داخل الباقة</span><strong>${total}</strong></div>
+              <div class="stat"><span>مضافة / متبقية</span><strong>${added} / ${remaining}</strong></div>
+            </div>
+
+            <div class="stats" style="margin-bottom:0;">
+              <div class="stat"><span>تم تنفيذها</span><strong>${done}</strong></div>
+              <div class="stat"><span>باقي تنفيذها</span><strong>${Math.max(added - done, 0)}</strong></div>
+              <div class="stat"><span>مدة الاشتراك</span><strong>${client.duration} شهر</strong></div>
+              <div class="stat"><span>حالة إضافة التاسكات</span><strong>${remaining === 0 ? "مكتملة" : "ناقصة"}</strong></div>
+            </div>
+
+            ${client.shootingBooking?.day && client.shootingBooking?.time ? `
+              <div class="stat">
+                <span>حجز تصوير الاستوديو</span>
+                <strong>${client.shootingBooking.day} - ${client.shootingBooking.time}</strong>
+                ${client.shootingBooking.notes ? `<p style="margin:8px 0 0;color:var(--muted);font-weight:800;line-height:1.7;">${client.shootingBooking.notes}</p>` : ""}
+              </div>
+            ` : ""}
+
+            <form id="taskForm-${client.id}" class="task-form" onsubmit="addManualTask(event, '${client.id}')">
+              <div class="two-cols">
+                <div class="form-row">
+                  <label>نوع التاسك</label>
+                  <select name="taskType" required>
+                    <option value="design">تصميم</option>
+                    <option value="video">فيديو</option>
+                    <option value="mixed-post">بوست منوع</option>
+                    <option value="reel">ريل</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label>تاريخ التنفيذ</label>
+                  <input name="executeDate" type="date" required />
+                </div>
+              </div>
+
+              <div class="two-cols">
+                <div class="form-row">
+                  <label>تاريخ الرفع</label>
+                  <input name="uploadDate" type="date" required />
+                </div>
+                <div class="form-row">
+                  <label>عدد التاسكات المتبقية للإضافة</label>
+                  <input type="text" value="${remaining}" disabled />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label>تفاصيل التاسك</label>
+                <textarea name="taskDetails" placeholder="اكتب تفاصيل التاسك هنا... مثال: تصميم بوست مراجعة ليلة الامتحان / قص ريل من فيديو شرح الوحدة الأولى" required></textarea>
+              </div>
+
+              <div class="btns">
+                <button class="primary" type="submit">حفظ التاسك</button>
+                <button class="secondary" type="button" onclick="toggleTaskForm('${client.id}')">إغلاق</button>
+              </div>
+            </form>
+
+            ${tasksHtml}
+          </div>
+        </article>
+      `;
+    }
+
+    ["facebook", "youtube"].forEach((platform) => {
+      ["Search", "ClientFilter", "StatusFilter", "TypeFilter"].forEach((suffix) => {
+        const element = document.getElementById(`${platform}${suffix}`);
+        element.addEventListener("input", renderBoards);
+        element.addEventListener("change", renderBoards);
+      });
+    });
+
+    document.getElementById("clearAll").addEventListener("click", async () => {
+      if (!confirm("هل تريد مسح كل العملاء والتاسكات؟")) return;
+      clients = [];
+      tasks = [];
+      await saveData();
+      render();
+    });
+
+    document.getElementById("exportCsv").addEventListener("click", () => {
+      const rows = [["اسم المدرس", "المادة", "الباكدج", "يوم تصوير الاستوديو", "ميعاد تصوير الاستوديو", "ملاحظات التصوير", "نوع التاسك", "تفاصيل التاسك", "تاريخ التنفيذ", "تاريخ الرفع", "الحالة"]];
+
+      tasks.forEach((task) => {
+        const client = clients.find((item) => item.id === task.clientId);
+        if (!client) return;
+        rows.push([
+          client.teacherName,
+          client.subjectName,
+          getPackageInfo(client).name,
+          client.shootingBooking?.day || "",
+          client.shootingBooking?.time || "",
+          client.shootingBooking?.notes || "",
+          taskTypes[task.type],
+          task.details,
+          task.executeDate,
+          task.uploadDate,
+          task.done ? "تم" : "متبقي"
+        ]);
+      });
+
+      const csv = "﻿" + rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "teacher-packages-manual-tasks.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function render() {
+      renderClientList();
+      renderBoards();
+      renderShootingSchedule();
+    }
+
+    async function initApp() {
+      try {
+        await loadData();
+      } catch (error) {
+        console.error(error);
+        alert("حصل خطأ أثناء تحميل الداتا من Firebase. الموقع هيحاول يفتح النسخة المحلية.");
+        useFirebase = false;
+        clients = JSON.parse(localStorage.getItem("teacherPackageClientsV2")) || [];
+        tasks = JSON.parse(localStorage.getItem("teacherPackageTasksV2")) || [];
+      }
+      render();
+    }
+
+    initApp();
+  </script>
 </body>
 </html>
